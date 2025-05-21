@@ -1,5 +1,21 @@
 const supertest = require('supertest');
 const mongoose = require('mongoose');
+
+let mongooseConnection;
+
+beforeAll(async () => {
+  const testDbUri = process.env.MONGODB_URI + '_test';
+  try {
+    mongooseConnection = await mongoose.connect(testDbUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to MongoDB for tests');
+  } catch (err) {
+    console.error('Failed to connect to MongoDB for tests:', err);
+    process.exit(1); // Exit the test suite if connection fails
+  }
+});
 const app = require('../src/index');
 const User = require('../src/models/user.model');
 const Task = require('../src/models/task.model');
@@ -8,18 +24,10 @@ const request = supertest(app);
 let authToken;
 let taskId;
 
-beforeAll(async () => {
-  const testDbUri = process.env.MONGODB_URI + '_test';
-  await mongoose.connect(testDbUri);
-});
 
 beforeEach(async () => {
   await User.deleteMany({});
   await Task.deleteMany({});
-});
-
-afterAll(async () => {
-  await mongoose.connection.close();
 });
 
 describe('Testes da API de Autenticação', () => {

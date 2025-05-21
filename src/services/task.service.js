@@ -1,82 +1,30 @@
-const Task = require('../models/task.model');
-const TaskRepository = require('../repositories/task.repository');
+const taskRepo = require('../repositories/task.repository');
 
 class TaskService {
-  constructor() {
-    this.taskRepository = new TaskRepository(Task);
-  }
-
-  async createTask(taskData, userId) {
-    try {
-      const task = await this.taskRepository.create({
-        ...taskData,
-        userId
-      });
-      return task;
-    } catch (error) {
-      throw error;
-    }
+  async createTask({ title, description, status, userId }) {
+    return taskRepo.create({ title, description, status, userId });
   }
 
   async getAllTasks(userId) {
-    try {
-      const tasks = await this.taskRepository.findAllByUserId(userId);
-      return tasks;
-    } catch (error) {
-      throw error;
-    }
+    return taskRepo.findAllByUser(userId);
   }
 
-  async getTaskById(taskId, userId) {
-    try {
-      const task = await this.taskRepository.findById(taskId);
-      
-      if (!task) {
-        throw new Error('Tarefa não encontrada');
-      }
-      
-      if (task.userId.toString() !== userId.toString()) {
-        throw new Error('Acesso não autorizado a esta tarefa');
-      }
-      
-      return task;
-    } catch (error) {
-      throw error;
-    }
+  async getTaskById(id, userId) {
+    const task = await taskRepo.findById(id);
+    if (!task) throw { status: 404, message: 'Tarefa não encontrada' };
+    if (task.userId.toString() !== userId) throw { status: 403, message: 'Acesso negado' };
+    return task;
   }
 
-  async updateTask(taskId, taskData, userId) {
-    try {
-      await this.getTaskById(taskId, userId);
-      
-      const updatedTask = await this.taskRepository.update(taskId, taskData);
-      return updatedTask;
-    } catch (error) {
-      throw error;
-    }
+  async updateTask(id, data, userId) {
+    await this.getTaskById(id, userId);
+    return taskRepo.update(id, data);
   }
 
-  async updateTaskStatus(taskId, status, userId) {
-    try {
-      await this.getTaskById(taskId, userId);
-      
-      const updatedTask = await this.taskRepository.update(taskId, { status });
-      return updatedTask;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async deleteTask(taskId, userId) {
-    try {
-      await this.getTaskById(taskId, userId);
-      
-      await this.taskRepository.delete(taskId);
-      return { message: 'Tarefa deletada com sucesso' };
-    } catch (error) {
-      throw error;
-    }
+  async deleteTask(id, userId) {
+    await this.getTaskById(id, userId);
+    return taskRepo.delete(id);
   }
 }
 
-module.exports = TaskService;
+module.exports = new TaskService();

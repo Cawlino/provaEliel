@@ -8,30 +8,19 @@ const TaskSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    trim: true
+    default: ''
   },
   status: {
     type: String,
-    enum: ['Pendente', 'Em andamento', 'Concluída'],
-    default: 'Pendente'
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+    enum: ['pendente', 'em progresso', 'concluída'],
+    default: 'pendente'
   }
+}, {
+  timestamps: true
 });
 
-TaskSchema.pre('findOneAndUpdate', function() {
-  this.set({ updatedAt: new Date() });
-});
+// O campo `id` (“_id”) já vem incluso pelo Mongoose; se precisar expô-lo como “id”,
+// você pode virtualizar:
+// TaskSchema.virtual('id').get(function() { return this._id.toHexString(); });
 
 module.exports = mongoose.model('Task', TaskSchema);
