@@ -27,8 +27,14 @@ const login = async (username, password) => {
     throw new Error('Senha inválida');
   }
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRATION || '1h',
+  // Ensure JWT_EXPIRATION is treated as seconds if it's a number string, otherwise default to '1h'
+  const expirationTime = process.env.JWT_EXPIRATION 
+    ? (isNaN(Number(process.env.JWT_EXPIRATION)) ? process.env.JWT_EXPIRATION : Number(process.env.JWT_EXPIRATION)) 
+    : '1h';
+
+  // Reverted to use process.env.JWT_SECRET
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { 
+    expiresIn: expirationTime,
   });
 
   return { token };

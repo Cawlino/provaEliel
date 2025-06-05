@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load .env variables at the very top
+
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -16,4 +18,9 @@ app.use('/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
 const PORT = process.env.PORT || 3000;
+
 connectDB();
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});

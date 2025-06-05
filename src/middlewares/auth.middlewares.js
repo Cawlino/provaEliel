@@ -12,8 +12,10 @@ function verifyToken(req, res, next) {
   }
 
   const token = parts[1];
+  // console.log('DEBUG: auth.middlewares.js - Received token for verification:', token); // Can be re-enabled if needed
+  // console.log('DEBUG: auth.middlewares.js - Verifying with JWT_SECRET:', process.env.JWT_SECRET); // Reverted, and logging secret is sensitive
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, process.env.JWT_SECRET); // Reverted to use process.env.JWT_SECRET
     req.userId = payload.id;
     next();
   } catch (err) {
